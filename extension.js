@@ -10,9 +10,9 @@ if (!(typeof window.CustomEvent === "function")) {
   window.CustomEvent = CustomEvent
 }
 
-window.extension = {
+window.craft = {
   /**
-   * extension.randomList 从数组中获取一个随机的元素
+   * craft.randomList 从数组中获取一个随机的元素
    * @param { Array } arr *必要* 要遍历的数组
    * @param { Boolean } f 可选 是否返回一个筛选后的数组
    * @param {*} r 可选 返回替换过的数组，传值为替换内容
@@ -39,7 +39,7 @@ window.extension = {
   },
 
   /**
-   * extension.getQuery 获取页面指定参数的值
+   * craft.getQuery 获取页面指定参数的值
    * @param { String } name 可选 要查询的页面参数名
    * @param { Boolean } beta 可选 额外返回一个当前页面所有参数的数组对象
    * @returns { Object } value查询的参数值(没有时为null) allObj所有参数对象 allArr所有参数数组 allArrObj(beta) length参数键值对个数
@@ -63,7 +63,7 @@ window.extension = {
   },
 
   /**
-   * extension.getObject 获取对象信息
+   * craft.getObject 获取对象信息
    * @param { Object } obj *必要* 目标对象
    * @returns { Object } keyList键数组 valList值数组 length对象长度
    */
@@ -78,7 +78,7 @@ window.extension = {
   },
 
   /**
-   * extension.isArrFn 精确判断是否为真数组
+   * craft.isArrFn 精确判断是否为真数组
    * @param { * } x
    * @returns { Boolean }
    */
@@ -87,7 +87,7 @@ window.extension = {
   },
 
   /**
-   * extension.isObjFn 精确判断是否为真对象
+   * craft.isObjFn 精确判断是否为真对象
    * @param { * } x
    * @returns { Boolean }
    */
@@ -96,7 +96,7 @@ window.extension = {
   },
 
   /**
-   * extension.isDomFn 判断是否为DOM对象
+   * craft.isDomFn 判断是否为DOM对象
    * @param { * } dom
    * @returns { Boolean }
    */
@@ -148,8 +148,37 @@ window.extension = {
     this.xEvent(0, "linkUrl", Func)
   },
 
+  linkFn: function (url, method, fn) {
+    if (typeof url != "function") throw new Error("linkFn 1st para must be a 'String'")
+    if (typeof method == "function") {
+      method();
+      
+
+
+
+
+      switch (fn) {
+        case "replace" || 1:
+          window.location.replace(url)
+          break
+        default:
+          window.location.href = url
+      }
+    }
+
+    bbb()
+
+    function aaa(n) {
+      console.log(n)
+    }
+
+    function bbb() {
+      aaa("aaa")
+    }
+  },
+
   /**
-   * extension.xEvent 自定义事件
+   * craft.xEvent 自定义事件
    * @param { Number(-1|0|1) } act *必要* 操作(-1:删除 0:监听 1:触发)
    * @param { String } e_name *必要* 自定义事件名称
    * @param { Function || * } Fn act为-1或0时必要，Fn代表监听事件触发函数。当act为1时可选，Fn代表事件传参
@@ -158,7 +187,7 @@ window.extension = {
    */
   xEvent: function (act, e_name, Fn, ele) {
     if (act == -1) {
-      if (typeof Fn != "function") console.warn("when xEvent use -1: remove, 3th para must be a 'Function'")
+      if (typeof Fn != "function") console.warn("when xEvent use -1: remove, 3rd para must be a 'Function'")
       if (!ele) {
         if (removeEventListener) removeEventListener(e_name, Fn)
         else detachEvent(e_name, Fn)
@@ -168,7 +197,7 @@ window.extension = {
         else ele.detachEvent(e_name, Fn)
       }
     } else if (act == 0) {
-      if (typeof Fn != "function") throw new Error("when xEvent use 0: cerate, 3th para must be a 'Function'")
+      if (typeof Fn != "function") throw new Error("when xEvent use 0: cerate, 3rd para must be a 'Function'")
       if (!ele) {
         if (addEventListener) addEventListener(e_name, Fn)
         else attachEvent(e_name, Fn)
@@ -190,7 +219,7 @@ window.extension = {
   },
 
   xStorage: function (type, act, key, val) {
-    if (act != "c" && typeof key != "string") throw new Error("3th para is key, at set/get/remove must be a 'String'")
+    if (act != "c" && typeof key != "string") throw new Error("3rd para is key, at set/get/remove must be a 'String'")
     switch (type) {
       case 0:
         switch (act) {

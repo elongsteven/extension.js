@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Wx-audio</title>
+  <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+  <link href="./lib/wx-audio.css" rel="stylesheet">
+</head>
+
+<body>
+  <h3 class="title"> es6 wx-audio </h3>
+  <div class="wx-audio"></div>
+  <div id="play" class="btn">播放</div>
+  <div class="wx-audio1"></div>
+  <div id="pause" class="btn">暂停</div>
+  <div class="wx-audio2"></div>
+  <div id="cut" class="btn">切歌</div>
+  <script type="text/javascript" src="./lib/wx-audio.js"></script>
+</body>
+<script>
+  // const wx = new WxAudio({
+  //   ele: '#wx-audio',
+  //   title: 'Arkrise',
+  //   disc: 'PonE',
+  //   src: './Arkrise.flac',
+  //   width: '320px',
+  //   loop: false,
+  // })
+  var wx = new WxAudio({
+    ele: '.wx-audio',
+    title: '',
+    disc: '',
+    src: './Arkrise.flac',
+    width: '320px',
+    loop: false,
+  })
+  var wx = new WxAudio({
+    ele: '.wx-audio1',
+    title: '',
+    disc: '',
+    src: './Arkrise.flac',
+    width: '320px',
+    loop: false,
+  })
+  var wx = new WxAudio({
+    ele: '.wx-audio2',
+    title: '',
+    disc: '',
+    src: './Arkrise.flac',
+    width: '320px',
+    loop: false,
+  })
+</script>
+
+</html>

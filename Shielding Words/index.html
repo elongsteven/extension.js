@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,Chrome=1" />
+  <title>敏感词屏蔽</title>
+</head>
+
+<body>
+  <!-- 插件引入
+    方法名：textDisposer
+    参数一： 规定的屏蔽规则  TYPEOF: 数组 或 用中英逗号隔开的字符串 ( Array || String )
+    参数二： 需要处理的字符  TYPEOF: 字符串 ( String )
+    返回值： 屏蔽处理后的字符 TYPEOF: 字符串 ( String )
+   -->
+  <script src="../../plugin/text-disposer.js"></script>
+
+  <!-- 插件使用案例 -->
+  <script>
+    var mgc = ['md', 'tm', 'wtm', 'wdnmd'];
+    var theText = 'mdmdmdmtmtmtwtmalkiwdnmdsdnmla';
+    var theArrTxt = ['mdmdmdmtmtmtwtmalkiwdnmdsdnmla', 'nmdtmd,ntnd']
+    var _object = {
+        first: 'RegExp',
+        second: 'mdmdmdmtmtmtwtmalkiwdnmdsdnmla',
+        asdasd: 54654
+      }
+      // var legalText = textDisposer(mgc || 'tm，sd,la', theText);
+    var legalText = textDisposerDEMO(mgc || 'tm，sd,la', _object || theArrTxt || theText);
+    console.log(legalText);
+
+
+
+
+    var _array = [1, 2, 3, 4, 5, 67, 8, 9]
+  </script>
+
+  <!-- DEMO 区块 -->
+  <!-- <script>
+
+    /* --== 第三代（定稿） ==-- */
+
+    // 敏感词
+    var mgc = ['md', 'tm', 'wtm', 'wdnmd'];
+
+    // 元字符
+    var theText = 'mdmdmdmtmtmtwtmalkiwdnmdsdnmla';
+
+    // 调用方法
+    console.log(disposer(mgc || 'tm，sd,la', theText));
+
+    // 方法封装  Rule规则（数组直接处理，如果是字符串则根据中英文逗号进行分割）  Text元字符串  此方法将返回一个受Rule处理后的合法Text字符串
+    function textDisposer(Rule, Text) {
+      if (typeof(Rule) == 'object') {
+        Rule.forEach(function(rule) {
+          Text = Text.replace(new RegExp(rule, 'ig'), '**')
+        });
+        return Text;
+      } else if (typeof(Rule) == 'string') {
+        Ruler = Rule.split(new RegExp(',|，', 'ig'))
+        return disposer(Ruler, Text);
+      }
+    }
+
+    /* -- EOF -- */
+
+
+
+    /* --== 第二代 For循环方法 ==-- */
+    // function disposer(Rule, Text) {
+    //   if (typeof(Rule) == 'object') {
+    //     for (var i = 0; i < Rule.length; i++) {
+    //       Text = Text.replace(new RegExp(Rule[i], 'ig'), '**')
+    //     }
+    //     return Text;
+    //   } else if (typeof(Rule) == 'string') {
+    //     Ruler = Rule.split(new RegExp(',|，', 'ig'))
+    //     return disposer(Ruler, Text);
+    //   }
+    // }
+
+
+    /* --== 第一代 ==-- */
+    // console.log(theText);
+
+    // // 循环处理
+    // for (var i = 0; i < mgc.length; i++) {
+    //   theText = theText.replace(new RegExp(mgc[i], 'ig'), '**')
+    // }
+
+    // // 处理后字符
+    // console.log(theText);
+
+    // var newText = sensitiveDispose(mgc, theText)
+
+    // console.log(disposer(mgc, theText));
+  </script> -->
+
+</body>
+
+</html>

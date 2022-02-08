@@ -1,0 +1,193 @@
+.bord {
+    border: 1px solid #999;
+    padding: 10px;
+    box-shadow: 3px 3px 3px #999999;
+}
+
+#menu {
+    overflow-y: hidden;
+    transition: all 1.2s;
+    opacity: 1;
+    z-index: 1;
+}
+
+#body {
+    overflow-y: hidden;
+    transition: all 1.2s;
+    opacity: 1;
+    z-index: 1;
+}
+
+#Version {
+    transition: all 1.2s;
+    opacity: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+}
+
+#loadBack {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #00000024;
+    transition: all 1s;
+    opacity: 0;
+}
+
+#a {
+    display: block;
+}
+
+#loading {
+    transform-style: preserve-3d;
+    opacity: 0;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #00000046;
+    width: 120px;
+    height: 120px;
+    text-align: center;
+    border-radius: 6px;
+    box-shadow: 3px 3px 3px #00000060;
+    border: 1px solid #88888899;
+    transition: all 1s;
+}
+
+.a {
+    display: none;
+    margin-top: 30px;
+    font-size: 20px;
+    font-weight: bold;
+    transition: all 1s;
+}
+
+.c {
+    display: none;
+    transition: all 1s;
+}
+
+#x {
+    display: inline-block;
+    margin-top: 15px;
+    font-weight: 500;
+    transition: all 1s;
+}
+
+/* #setting {
+    float: right;
+}
+ */
+
+#Updata {
+    float: left;
+    margin-left: 16px;
+    font-size: 10px;
+}
+
+#GuessNum {
+    float: right;
+    margin-right: 16px;
+}
+
+#settingBut {
+    float: right;
+    margin-right: 10px;
+    display: none;
+}
+
+#BcakToMenu {
+    float: left;
+    margin-right: 10px;
+}
+
+.Times {
+    width: 300px;
+    float: right;
+    line-height: 16px;
+}
+
+.TimeText {
+    float: left;
+}
+
+#NT {
+    float: right;
+    background-color: lightgray;
+    height: 16px;
+    width: 200px;
+    float: right;
+    overflow: hidden;
+}
+
+#OU {
+    width: 0%;
+    height: 16px;
+    background: rgb(0, 162, 156);
+    float: left;
+    transition: all 1s;
+    z-index: 1;
+    line-height: 16px;
+    text-align: center;
+    overflow: hidden;
+}
+
+cc {
+    color: lightseagreen;
+}
+
+#TimeNum {
+    font-family: Comic Sans;
+    font-size: 15px;
+    color: #fff;
+}
+
+#prompt {
+    font-size: 16px;
+}
+
+table {
+    width: 90%;
+    margin: 10px;
+    margin-left: 5%;
+    transition: all 1s;
+}
+
+#low {
+    background-color: lightgray;
+    height: 1em;
+    transition: all 1s;
+
+    position: relative;
+}
+
+#high {
+    background-color: lightgray;
+    height: 1em;
+    transition: all 1s;
+
+    position: relative;
+}
+
+#mid {
+    background-color: green;
+    transition: all 1s;
+    width: 0;
+}
+
+#highNum {
+    float: left;
+    position: absolute;
+    top: -0.3px;
+    left: 6px;
+}
+
+#lowNum {
+    float: right;
+    position: absolute;
+    right: 16px;
+}

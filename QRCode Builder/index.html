@@ -1,0 +1,99 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ko" lang="ko">
+
+<head>
+  <title>QRCode DEMO</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no" />
+  <script type="text/javascript" src="./lib/jquery.min.js"></script>
+  <script type="text/javascript" src="./lib/qrcode.min.js"></script>
+  <script type="text/javascript" src="./lib/qcCore.js"></script>
+  <script type="text/javascript" src="./lib/vue.js"></script>
+</head>
+
+<body style="text-align: center;">
+  请输入网址或文字：<br />
+  <input id="text" type="text" value="http://www.dtb315.com" style="width:72%;text-align:center;" placeholder="http://www.dtb315.com" /><br /> 二维码宽高：
+  <input id="square" type="number" value="200" style="width:100px;margin-top:8px;" placeholder="200" />
+  <input id="imgBase" type="file" class="fileImage" accept="image/png, image/jpeg, image/jpg" onchange="reader()"><br />
+  <div style="margin-top:16px;">生成结果：</div>
+  <div id="qrcode" style="width:100%;margin-top:15px;display:flex;justify-content:center;"></div>
+  <div style="margin-top:16px;">带图：</div>
+
+  <img id="imgBlock" src="">
+  <canvas id="canvas1" style="display:none;"></canvas>
+  <canvas id="canvas2" style="display:none;"></canvas>
+
+  <script type="text/javascript">
+    var size = 200;
+    var v = 0;
+    var imgBase;
+    var QRBase;
+    var C = 3;
+
+    var elText = document.getElementById("text");
+    var square = document.getElementById("square");
+
+    function Build() {
+      // 第一次不删除
+      if (v == 1) {
+        $("#qrcode").find("canvas:first").remove();
+        $("#qrcode").find("img:first").remove();
+      } else {
+        v++;
+      }
+      // 键入值判断
+      if (!elText.value) {
+        elText.value = "http://www.dtb315.com";
+      };
+      if (!square.value) {
+        size = 200;
+      } else {
+        size = square.value;
+      };
+
+      // 为带图二维码容器初始化
+      $("#canvas1").attr("width", square.value);
+      $("#canvas1").attr("height", square.value);
+      $("#canvas2").attr("width", square.value / C);
+      $("#canvas2").attr("height", square.value / C);
+
+      // 生成二维码
+      var qrcode = new QRCode(document.getElementById("qrcode"), {
+        width: size,
+        height: size
+      });
+      qrcode.makeCode(elText.value);
+      console.log("当前生成值:", elText.value);
+
+
+      QRBase = $("#qrcode").find("img:last").attr("src");
+      union(QRBase, imgBase, square.value, C);
+    }
+
+    $('#imgBase').on('change', function() {
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        // console.log(reader.result); //或者 e.target.result都是一样的，都是base64码
+        imgBase = reader.result;
+        QRBase = $("#qrcode").find("img:last").attr("src");
+        union($("#qrcode").find("img:last").attr("src"), reader.result, size, C);
+        Build();
+      };
+      // filses就是input[type=file]文件列表，files[0]就是第一个文件，这里就是将选择的第一个图片文件转化为base64的码
+      reader.readAsDataURL(this.files[0]);
+    })
+
+    Build();
+
+    $("#text").on("change", function(e) {
+      Build();
+    });
+
+    $("#square").on("change", function(e) {
+      Build();
+    });
+  </script>
+</body>
+
+</html>

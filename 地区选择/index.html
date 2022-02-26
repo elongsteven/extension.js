@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>城市选择</title>
+    <link rel="stylesheet" href="./css/weui.min.css">
+
+</head>
+
+<body>
+    <form>
+        <div class="weui-cells">
+            <div class="weui-cell weui-cell_select weui-cell_select-after">
+                <div class="weui-cell__hd">
+                    <label for="" class="weui-label">国家/地区</label>
+                </div>
+                <div class="weui-cell__bd">
+                    <input class="weui-input" type="text" id="selectArea" name="city" placeholder="请输入所在地区" readonly>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <script src="./js/weui.min.js"></script>
+    <script src="js/jquery-3.5.1.min.js"></script>
+    <script src="./js/city.js"></script>
+    <script>
+        $(function () {
+            // 点击所在地区
+            $('#selectArea').on('click', function () {
+                // 地址三级联动
+                weui.picker(cityData3, {
+                    defaultValue: ["110000", "110100", "110101"],
+                    onConfirm: function (result) {
+                        var str = "";
+                        var cityArr = [];
+                        result.map(function (i, val) {
+                            str += i["label"] + ' ';
+                            cityArr.push(i["value"]);
+                        });
+                        $("#selectArea").val(str);
+                        $("#selectArea").attr("cityArr", cityArr);
+                    }
+                })
+            });
+        })
+    </script>
+</body>
+
+</html>

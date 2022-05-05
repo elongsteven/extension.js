@@ -8,49 +8,89 @@
   <title>Document</title>
   <script src="./library/jquery-3.6.0.js"></script>
   <script src="./library/vue-2.6.14.js"></script>
+  <link rel="stylesheet" href="./index.css">
+  <style>
+    .barArea {
+      margin: 30px;
+      display: flex;
+      align-items: center;
+      font-size: 14px;
+    }
+
+    .fnBtn {
+      border: 1px #666 solid;
+      border-radius: 6px;
+      margin-right: 24px;
+      padding: 3px 6px;
+    }
+
+    input[type=file] {
+      border: 1px #999 solid
+    }
+
+    input[type=file]:active,
+    input[type='file']:focus {
+      outline: none;
+    }
+  </style>
 </head>
 
 <body>
-  <div id="app">
-    <div style="display: flex;">
-      <div id="box" class="trueView"></div>
-      <div class="es-richText">
-        <div class="toolbar" id="butGroup">
-          <div class="toHtml_btn" onclick="esEditor.toHtml()" style="font-size:12px;">&lt;/&gt;</div>
-          <div class="toView_btn" onclick="esEditor.toView()" style="font-size:12px;display:none;">TXT</div>
-          <div class="htmlHide" onclick="esEditor.undo()">撤销</div>
-          <div class="htmlHide" onclick="esEditor.redo()">恢复</div>
-          <div class="htmlHide" onclick="esEditor.insertEMSP()">EMSP</div>
-          <div class="htmlHide" onclick="esEditor.indent()">缩进</div>
-          <div class="htmlHide" onclick="esEditor.bold()">加粗</div>
-          <div class="htmlHide" onclick="esEditor.italic()">倾斜</div>
-          <div class="htmlHide" onclick="esEditor.underline()">下划线</div>
-          <div class="htmlHide" onclick="esEditor.strikeThrough()">删除线</div>
-          <div class="htmlHide" onclick="esEditor.h1()">H1</div>
-          <div class="htmlHide" onclick="esEditor.h2()">H2</div>
-          <div class="htmlHide" onclick="esEditor.h3()">H3</div>
-          <div class="htmlHide" onclick="esEditor.foreColor()">字体颜色</div>
-          <div class="htmlHide" onclick="esEditor.hiliteColor()">字体背景</div>
-          <div class="htmlHide" onclick="esEditor.insertOrderedList()">有序</div>
-          <div class="htmlHide" onclick="esEditor.insertUnorderedList()">无序</div>
-          <div class="htmlHide" onclick="esEditor.save()">提交</div>
-          <div class="htmlHide" onclick="esEditor.format()">format</div>
-          <div class="htmlHide" onclick="esEditor.lineHeight()">行高</div>
-        </div>
-        <div style="width:100%; height:586px; box-sizing: border-box;">
-          <iframe id="HtmlEdit" style="width:100%;height:100%;"></iframe>
-          <textarea id="HtmlView" style="width:100%;height:100%; display:none;"></textarea>
-        </div>
+  <div id="app" style="margin-bottom: 1000px;">
+    <div v-for="(item,index) in dataArr" :key="item.id">
+      <div class="barArea" v-if="item.type === 'text'">
+        text<div @click="delData(index)">-删除</div>
+      </div>
+      <div class="barArea" v-else-if="item.type === 'image'">
+        <input type="file" accept="image/gif,image/jpeg,image/png" @change="changeFn(item, index)" />
+        image<div @click="delData(index)">-删除</div>
+      </div>
+      <div class="barArea" v-else-if="item.type === 'audio'">
+        <input type="file" accept="audio/*" @change="changeFn(item, index)" />
+        audio<div @click="delData(index)">-删除</div>
+      </div>
+      <div class="barArea" v-else-if="item.type === 'video'">
+        <input type="file" accept="video/*" @change="changeFn(item, index)" />
+        video<div @click="delData(index)">-删除</div>
       </div>
     </div>
+    <div class="barArea">
+      <div class="fnBtn" @click="addData('text')">+文字</div>
+      <div class="fnBtn" @click="addData('image')">+图片</div>
+      <div class="fnBtn" @click="addData('audio')">+音频</div>
+      <div class="fnBtn" @click="addData('video')">+视频</div>
+    </div>
+    {{dataArr}}
   </div>
 
   <script>
     var vm = new Vue({
       el: "#app",
       data: {
+        id: 0,
+        dataArr: [],
+      },
+      mounted() {
 
       },
+      methods: {
+        // 增
+        addData: function (type) {
+          this.dataArr.push({
+            "id": this.id,
+            "type": type
+          });
+          this.id++;
+        },
+        // 删
+        delData: function (index) {
+          this.dataArr.splice(index, 1);
+        },
+        // 改
+        changeFn: function (data, index) {
+          if (data.type === 'image') {}
+        }
+      }
     })
 
     function HTMLEncode(html) {
@@ -69,6 +109,38 @@
       return output;
     }
   </script>
+
+  <div style="display: flex;">
+    <div id="box" class="trueView"></div>
+    <div class="es-richText">
+      <div class="toolbar" id="butGroup">
+        <div class="toHtml_btn" onclick="esEditor.toHtml()" style="font-size:12px;">&lt;/&gt;</div>
+        <div class="toView_btn" onclick="esEditor.toView()" style="font-size:12px;display:none;">TXT</div>
+        <div class="htmlHide" onclick="esEditor.undo()">撤销</div>
+        <div class="htmlHide" onclick="esEditor.redo()">恢复</div>
+        <div class="htmlHide" onclick="esEditor.insertEMSP()">EMSP</div>
+        <div class="htmlHide" onclick="esEditor.indent()">缩进</div>
+        <div class="htmlHide" onclick="esEditor.bold()">加粗</div>
+        <div class="htmlHide" onclick="esEditor.italic()">倾斜</div>
+        <div class="htmlHide" onclick="esEditor.underline()">下划线</div>
+        <div class="htmlHide" onclick="esEditor.strikeThrough()">删除线</div>
+        <div class="htmlHide" onclick="esEditor.h1()">H1</div>
+        <div class="htmlHide" onclick="esEditor.h2()">H2</div>
+        <div class="htmlHide" onclick="esEditor.h3()">H3</div>
+        <div class="htmlHide" onclick="esEditor.foreColor()">字体颜色</div>
+        <div class="htmlHide" onclick="esEditor.hiliteColor()">字体背景</div>
+        <div class="htmlHide" onclick="esEditor.insertOrderedList()">有序</div>
+        <div class="htmlHide" onclick="esEditor.insertUnorderedList()">无序</div>
+        <div class="htmlHide" onclick="esEditor.save()">提交</div>
+        <div class="htmlHide" onclick="esEditor.format()">format</div>
+        <div class="htmlHide" onclick="esEditor.lineHeight()">行高</div>
+      </div>
+      <div style="width:100%; height:586px; box-sizing: border-box;">
+        <iframe id="HtmlEdit" style="width:100%;height:100%;"></iframe>
+        <textarea id="HtmlView" style="width:100%;height:100%; display:none;"></textarea>
+      </div>
+    </div>
+  </div>
 </body>
 
 </html>

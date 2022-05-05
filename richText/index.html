@@ -157,15 +157,15 @@
         this.editor.document.designMode = 'On'; //打开设计模式
         this.editor.document.contentEditable = true; // 设置元素为可编辑
         var scr = HTMLDecode("&lt;script src='../Library/jquery/jquery-3.6.0.js'&gt;&lt;/script&gt;");
+        this.doc.getElementsByTagName("head")[0].innerHTML += scr;
+        this.doc.write(scr);
         var js = HTMLDecode(`&lt;script&gt;
         function hide(ele) {
           window.parent.esEditor.autoFormat($(document))
         }
         &lt;/script&gt;`)
         this.doc.write("<div id='space' style='position:fixed;top:0;left:0;right:0;bottom:0;' onclick='hide($(this))'></div>");
-        this.doc.write(scr);
         this.doc.write(js);
-        this.doc.getElementsByTagName("head")[0].innerHTML += scr;
         this.doc.getElementsByTagName("head")[0].innerHTML += HTMLDecode(`&lt;style&gt;
           p {
             word-wrap: break-word;

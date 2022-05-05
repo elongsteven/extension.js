@@ -56,11 +56,17 @@
       margin: 3px;
       border-radius: 3px;
       transition: all .3s;
-      cursor: pointer
+      cursor: pointer;
+      user-select: none;
     }
 
     .es-richText .toolbar div:hover {
       background: #00000024;
+    }
+
+    .es-richText #HtmlEdit {
+      word-wrap: break-word;
+      word-break: break-all;
     }
 
     .trueView {
@@ -74,6 +80,8 @@
       border: 1px solid #aaa;
       box-shadow: 0 0 6px #00000030;
       overflow-y: scroll;
+      word-wrap: break-word;
+      word-break: break-all;
     }
 
     .trueView::-webkit-scrollbar {
@@ -106,23 +114,25 @@
     <div class="es-richText">
       <div class="toolbar" id="butGroup">
         <div class="toHtml_btn" onclick="esEditor.toHtml()" style="font-size:12px;">&lt;/&gt;</div>
-        <div class="toView_btn" onclick="esEditor.toView()" style="font-size:12px;display:none;">HTML</div>
-        <div onclick="esEditor.undo()">撤销</div>
-        <div onclick="esEditor.redo()">恢复</div>
-        <div onclick="esEditor.indent()">缩进</div>
-        <div onclick="esEditor.bold()">加粗</div>
-        <div onclick="esEditor.italic()">倾斜</div>
-        <div onclick="esEditor.underline()">下划线</div>
-        <div onclick="esEditor.strikeThrough()">删除线</div>
-        <div onclick="esEditor.h1()">H1</div>
-        <div onclick="esEditor.h2()">H2</div>
-        <div onclick="esEditor.h3()">H3</div>
-        <div onclick="esEditor.foreColor()">字体颜色</div>
-        <div onclick="esEditor.hiliteColor()">字体背景</div>
-        <div onclick="esEditor.insertOrderedList()">有序</div>
-        <div onclick="esEditor.insertUnorderedList()">无序</div>
-        <div onclick="esEditor.save()">提交</div>
-        <div onclick="esEditor.format()">format</div>
+        <div class="toView_btn" onclick="esEditor.toView()" style="font-size:12px;display:none;">TXT</div>
+        <div class="htmlHide" onclick="esEditor.undo()">撤销</div>
+        <div class="htmlHide" onclick="esEditor.redo()">恢复</div>
+        <div class="htmlHide" onclick="esEditor.insertEMSP()">EMSP</div>
+        <div class="htmlHide" onclick="esEditor.indent()">缩进</div>
+        <div class="htmlHide" onclick="esEditor.bold()">加粗</div>
+        <div class="htmlHide" onclick="esEditor.italic()">倾斜</div>
+        <div class="htmlHide" onclick="esEditor.underline()">下划线</div>
+        <div class="htmlHide" onclick="esEditor.strikeThrough()">删除线</div>
+        <div class="htmlHide" onclick="esEditor.h1()">H1</div>
+        <div class="htmlHide" onclick="esEditor.h2()">H2</div>
+        <div class="htmlHide" onclick="esEditor.h3()">H3</div>
+        <div class="htmlHide" onclick="esEditor.foreColor()">字体颜色</div>
+        <div class="htmlHide" onclick="esEditor.hiliteColor()">字体背景</div>
+        <div class="htmlHide" onclick="esEditor.insertOrderedList()">有序</div>
+        <div class="htmlHide" onclick="esEditor.insertUnorderedList()">无序</div>
+        <div class="htmlHide" onclick="esEditor.save()">提交</div>
+        <div class="htmlHide" onclick="esEditor.format()">format</div>
+        <div class="htmlHide" onclick="esEditor.lineHeight()">行高</div>
       </div>
       <div style="width:100%; height:586px; box-sizing: border-box;">
         <iframe id="HtmlEdit" style="width:100%;height:100%;"></iframe>
@@ -132,20 +142,43 @@
   </div>
 
   <script>
-    window.onload = function () {
+    $("#HtmlEdit").ready(function () {
       esEditor.EditorInitSetting();
-
-    }
+    })
 
     var esEditor = {
+      isFormat: false,
       editor: document.getElementById("HtmlEdit").contentWindow, //获取iframe Window 对象
       doc: document.getElementById("HtmlEdit").contentDocument, //获取iframe documen 对象
       butGroup: document.getElementById('butGroup'),
       box: document.getElementById('box'),
+      iframeJqDOC: '',
       EditorInitSetting: function () {
         this.editor.document.designMode = 'On'; //打开设计模式
         this.editor.document.contentEditable = true; // 设置元素为可编辑
+        var scr = HTMLDecode("&lt;script src='../Library/jquery/jquery-3.6.0.js'&gt;&lt;/script&gt;");
+        var js = HTMLDecode(`&lt;script&gt;
+        function hide(ele) {
+          window.parent.esEditor.autoFormat($(document))
+        }
+        &lt;/script&gt;`)
+        this.doc.write("<div id='space' style='position:fixed;top:0;left:0;right:0;bottom:0;' onclick='hide($(this))'></div>");
+        this.doc.write(scr);
+        this.doc.write(js);
+        this.doc.getElementsByTagName("head")[0].innerHTML += scr;
+        this.doc.getElementsByTagName("head")[0].innerHTML += HTMLDecode(`&lt;style&gt;
+          p {
+            word-wrap: break-word;
+            word-break: break-all;
+          }
+        &lt;/style&gt;`)
+        this.doc.getElementsByTagName("head")[0].innerHTML += HTMLDecode(`&lt;script&gt;
+          $("p").click(function () {
+            console.log($("li").index(this))
+          })
+        &lt;/script&gt;`)
       },
+      eventIndex: "",
       undo: function () {
         this.editor.document.execCommand('undo', false, null); // 撤销
       },
@@ -199,11 +232,39 @@
       insertUnorderedList: function () {
         this.editor.document.execCommand('insertUnorderedList', false, null)
       },
+      // 格式序列化
       format: function () {
         this.editor.document.execCommand('formatblock', false, 'p');
       },
+      lineHeight: function () {
+        console.log(this.iframeJqDOC)
+        this.iframeJqDOC.find("p").css("lineHeight", 2)
+      },
+      insertEMSP: function () {
+        this.editor.document.execCommand('insertText', false, HTMLDecode('&emsp;&emsp;'));
+      },
+      eventHandler: function (e) {
+
+      },
+      // 格式序列化
+      autoFormat: function (ele) {
+        console.log(ele.find("body"))
+        ele.find("body").find("script,#space").remove();
+        this.iframeJqDOC = ele;
+        ele.bind("DOMNodeInserted", function (e) {
+          setTimeout(function () {
+            // ele.find("p").css({
+            //   "text-indent": "2em"
+            // })
+          })
+        })
+        setTimeout(function () {
+          this.editor.document.execCommand('formatblock', false, 'p');
+        }.bind(this))
+      },
       // 提交
       save: function () {
+        console.log(this.doc.body.innerHTML)
         this.box.innerHTML = this.doc.body.innerHTML
       },
       toHtml: function () {
@@ -213,6 +274,11 @@
         $("#HtmlView").val(this.doc.body.innerHTML); // 编辑继承
         $(".toHtml_btn").hide();
         $(".toView_btn").fadeIn(300);
+        $(".htmlHide").css({
+          "opacity": 0,
+          "cursor": "default",
+          "pointer-events": "none"
+        });
       },
       toView: function () {
         // 切换为效果视图
@@ -221,283 +287,13 @@
         this.doc.body.innerHTML = $("#HtmlView").val()
         $(".toView_btn").hide();
         $(".toHtml_btn").fadeIn(300);
+        $(".htmlHide").css({
+          "opacity": 1,
+          "cursor": "pointer",
+          "pointer-events": "auto"
+        });
       }
     }
-  </script>
-
-
-
-
-  <script>
-    // 工具栏相关
-    function htmlView() {
-
-    }
-
-
-    function HTMLEncode(html) {
-      var temp = document.createElement("div");
-      (temp.textContent != null) ? (temp.textContent = html) : (temp.innerText = html);
-      var output = temp.innerHTML;
-      temp = null;
-      return output;
-    }
-
-    var tagText = "<p><b>123&456</b></p>";
-    console.log('tagText', HTMLEncode(tagText));
-
-    function HTMLDecode(text) {
-      var temp = document.createElement("div");
-      temp.innerHTML = text;
-      var output = temp.innerText || temp.textContent;
-      temp = null;
-      return output;
-    }
-    var tagText = "<p><b>123&456</b></p>";
-    var encodeText = HTMLEncode(tagText);
-    console.log(encodeText); //<p><b>123&456</b></p>
-    console.log(HTMLDecode(encodeText));
-  </script>
-
-
-
-
-  <!-- document.execCommand 指令集 -->
-  <script>
-    /*
-     *该function执行copy指令
-     */
-    function fn_doufucopy() {
-      edit.select();
-      document.execCommand('Copy');
-    }
-
-    /*
-     *该function执行paste指令
-     */
-    function fn_doufupaste() {
-      tt.focus();
-      document.execCommand('paste');
-    }
-
-    /*
-     *该function用来创建一个超链接
-     */
-    function fn_creatlink() {
-      document.execCommand('CreateLink', true, 'true'); //弹出一个对话框输入URL
-      //document.execCommand('CreateLink',false,'http://www.51js.com');
-    }
-
-    /*
-     *该function用来将选中的区块设为指定的背景色
-     */
-    function fn_change_backcolor() {
-      document.execCommand('BackColor', true, '#FFbbDD'); //true或false都可以
-    }
-
-    /*
-     *该function用来将选中的区块设为指定的前景色,改变选中区块的字体大小,改变字体,字体变粗变斜
-     */
-    function fn_change_forecolor() {
-      //指定前景色
-      document.execCommand('ForeColor', false, '#BBDDCC'); //true或false都可以
-      //指定背景色
-      document.execCommand('FontSize', false, 7); //true或false都可以
-      //字体必须是系统支持的字体
-      document.execCommand('FontName', false, '标楷体'); //true或false都可以
-      //字体变粗
-      document.execCommand('Bold');
-      //变斜体
-      document.execCommand('Italic');
-    }
-
-    /*
-     *该function用来将选中的区块加上不同的线条
-     */
-    function fn_change_selection() {
-      //将选中的文字加下划线
-      document.execCommand('Underline');
-      //在选中的文字上划粗线
-      document.execCommand('StrikeThrough');
-      //将选中的部分文字变细
-      document.execCommand('SuperScript');
-      //将选中区块的下划线取消掉
-      document.execCommand('Underline');
-    }
-
-    /*
-     *该function用来将选中的区块排成不同的格式
-     */
-    function fn_format() {
-      //有序列排列
-      document.execCommand('InsertOrderedList');
-      //实心无序列排列
-      document.execCommand('InsertUnorderedList');
-      //空心无序列排列
-      document.execCommand('Indent');
-    }
-
-    /*
-     *该function用来将选中的区块剪下或是删除掉
-     */
-    function fn_CutOrDel() {
-      //删除选中的区块
-      //document.execCommand('Delete');
-      //剪下选中的区块
-      document.execCommand('Cut');
-    }
-
-    /*
-     *该function用来将选中的区块重设为一个相应的物件
-     */
-    function fn_InsObj() {
-      /*
-       ******************************************
-       * 以下指令都是为选中的区块重设一个object;
-       * 如没有特殊说明,第二个参数true或false是一样的;
-       * 参数三表示为该object的id;
-       * 可以用在javascript中通过其指定的id来控制它
-       ******************************************
-       */
-      /*重设为一个button(InsertButton和InsertInputButtong一样,
-      只不前者是button,后者是input)*/
-      /*document.execCommand('InsertButton',false,"aa"); //true或false无效
-      document.all.aa.value="风舞九天";*/
-      //重设为一个fieldset
-      /*document.execCommand('InsertFieldSet',true,"aa");
-      document.all.aa.innerText="刀剑如梦";*/
-      //插入一个水平线
-      //document.execCommand('InsertHorizontalRule',true,"aa");
-      //插入一个iframe
-      //document.execCommand('InsertIFrame',true,"aa");
-      //插入一个InsertImage,设为true时需要图片,false时不需图片
-      //document.execCommand('InsertImage',false,"aa");
-      //插入一个checkbox
-      //document.execCommand('InsertInputCheckbox',true,"aa");
-      //插入一个file类型的object
-      //document.execCommand('InsertInputFileUpload',false,"aa");
-      //插入一个hidden
-      /*document.execCommand('InsertInputHidden',false,"aa");
-      alert(document.all.aa.id);*/
-      //插入一个InputImage
-      /*document.execCommand('InsertInputImage',false,"aa");
-      document.all.aa.src="F-a10.gif";*/
-      //插入一个Password
-      //document.execCommand('InsertInputPassword',true,"aa");
-      //插入一个Radio
-      //document.execCommand('InsertInputRadio',false,"aa");
-      //插入一个Reset
-      //document.execCommand('InsertInputReset',true,"aa");
-      //插入一个Submit
-      //document.execCommand('InsertInputSubmit',false,"aa");
-      //插入一个input text
-      //document.execCommand('InsertInputText',false,"aa");
-      //插入一个textarea
-      //document.execCommand('InsertTextArea',true,"aa");
-      //插入一个 select list box
-      //document.execCommand('InsertSelectListbox',false,"aa");
-      //插入一个single select
-      document.execCommand('InsertSelectDropdown', true, "aa");
-      //插入一个line break(硬回车??)
-      //document.execCommand('InsertParagraph');
-      //插入一个marquee
-      /*document.execCommand('InsertMarquee',true,"aa");
-      document.all.aa.innerText="bbbbb";*/
-      //用于取消选中的阴影部分
-      //document.execCommand('Unselect');
-      //选中页面上的所有元素
-      //document.execCommand('SelectAll');
-    }
-
-    /*
-     *该function用来将页面保存为一个文件
-     */
-    function fn_save() {
-      //第二个参数为欲保存的文件名
-      document.execCommand('SaveAs', 'mycodes.txt');
-      //打印整个页面
-      //document.execCommand('print');
-    }
-    // document.execCommand("BlockDirLTR"); // not defined 目前尚未支持。
-    // document.execCommand("BrowseMode"); // not defined 目前尚未支持。
-    // document.execCommand("BlockDirRTL"); // not defined 目前尚未支持。
-    // document.execCommand("DirLTR"); // not defined 目前尚未支持。
-    // document.execCommand("DirRTL"); // not defined 目前尚未支持。
-    // document.execCommand("EditMode"); // not defined 目前尚未支持。
-    // document.execCommand("InlineDirLTR"); // not defined 目前尚未支持。
-    // document.execCommand("InlineDirRTL"); // not defined 目前尚未支持。
-    // document.execCommand("JustifyFull"); // not defined 目前尚未支持。
-    // document.execCommand("JustifyNone"); // not defined 目前尚未支持。
-    // document.execCommand("PlayImage"); // not defined 目前尚未支持。
-    // document.execCommand("RemoveParaFormat"); // not defined 目前尚未支持。
-    // document.execCommand("SizeToControl"); // not defined 目前尚未支持。
-    // document.execCommand("SizeToControlHeight"); // not defined 目前尚未支持。
-    // document.execCommand("SizeToControlWidth"); // not defined 目前尚未支持。
-    // document.execCommand("StopImage"); // not defined 目前尚未支持。
-    // document.execCommand("StrikeThrough"); // not defined 目前尚未支持。
-    // document.execCommand("Subscript"); // not defined 目前尚未支持。
-    // document.execCommand("Superscript"); // not defined 目前尚未支持。
-
-
-    /* 文字相关 */
-    // document.execCommand("2D-Position"); // 允许通过拖曳移动绝对定位的对象。
-    // document.execCommand("AbsolutePosition"); // 设定元素的 position 属性为“absolute”(绝对)。
-    // document.execCommand("BackColor"); // 设置或获取当前选中区的背景颜色。
-    // document.execCommand("Bold"); // 切换当前选中区的粗体显示与否。
-    // document.execCommand("Copy"); // 将当前选中区复制到剪贴板。
-    // document.execCommand("CreateBookmark"); // 创建一个书签锚或获取当前选中区或插入点的书签锚的名称。
-    // document.execCommand("CreateLink"); // 在当前选中区上插入超级链接，或显示一个对话框允许用户指定要为当前选中区插入的超级链接的 URL。
-    // document.execCommand("Cut"); // 将当前选中区复制到剪贴板并删除之。
-    // document.execCommand("Delete"); // 删除当前选中区。
-    // document.execCommand("FontName"); // 设置或获取当前选中区的字体。
-    // document.execCommand("FontSize"); // 设置或获取当前选中区的字体大小。
-    // document.execCommand("ForeColor"); // 设置或获取当前选中区的前景(文本)颜色。
-    // document.execCommand("FormatBlock"); // 设置当前块格式化标签。
-    // document.execCommand("Indent"); // 增加选中文本的缩进。
-    // document.execCommand("InsertButton"); // 用按钮控件覆盖当前选中区。
-    // document.execCommand("InsertFieldset"); // 用方框覆盖当前选中区。
-    // document.execCommand("InsertHorizontalRule"); // 用水平线覆盖当前选中区。
-    // document.execCommand("InsertIFrame"); // 用内嵌框架覆盖当前选中区。
-    // document.execCommand("InsertImage"); // 用图像覆盖当前选中区。
-    // document.execCommand("InsertInputButton"); // 用按钮控件覆盖当前选中区。
-    // document.execCommand("InsertInputCheckbox"); // 用复选框控件覆盖当前选中区。
-    // document.execCommand("InsertInputFileUpload"); // 用文件上载控件覆盖当前选中区。
-    // document.execCommand("InsertInputHidden"); // 插入隐藏控件覆盖当前选中区。
-    // document.execCommand("InsertInputImage"); // 用图像控件覆盖当前选中区。
-    // document.execCommand("InsertInputPassword"); // 用密码控件覆盖当前选中区。
-    // document.execCommand("InsertInputRadio"); // 用单选钮控件覆盖当前选中区。
-    // document.execCommand("InsertInputReset"); // 用重置控件覆盖当前选中区。
-    // document.execCommand("InsertInputSubmit"); // 用提交控件覆盖当前选中区。
-    // document.execCommand("InsertInputText"); // 用文本控件覆盖当前选中区。
-    // document.execCommand("InsertMarquee"); // 用空字幕覆盖当前选中区。
-    // document.execCommand("InsertOrderedList"); // 切换当前选中区是编号列表还是常规格式化块。
-    // document.execCommand("InsertParagraph"); // 用换行覆盖当前选中区。
-    // document.execCommand("InsertSelectDropdown"); // 用下拉框控件覆盖当前选中区。
-    // document.execCommand("InsertSelectListbox"); // 用列表框控件覆盖当前选中区。
-    // document.execCommand("InsertTextArea"); // 用多行文本输入控件覆盖当前选中区。
-    // document.execCommand("InsertUnorderedList"); // 切换当前选中区是项目符号列表还是常规格式化块。
-    // document.execCommand("Italic"); // 切换当前选中区斜体显示与否。
-    // document.execCommand("JustifyCenter"); // 将当前选中区在所在格式化块置中。
-    // document.execCommand("JustifyLeft"); // 将当前选中区所在格式化块左对齐。
-    // document.execCommand("JustifyRight"); // 将当前选中区所在格式化块右对齐。
-    // document.execCommand("LiveResize"); // 迫使 MSHTML 编辑器在缩放或移动过程中持续更新元素外观，而不是只在移动或缩放完成后更新。
-    // document.execCommand("MultipleSelection"); // 允许当用户按住 Shift 或 Ctrl 键时一次选中多于一个站点可选元素。
-    // document.execCommand("Open"); // 打开。
-    // document.execCommand("Outdent"); // 减少选中区所在格式化块的缩进。
-    // document.execCommand("OverWrite"); // 切换文本状态的插入和覆盖。
-    // document.execCommand("Paste"); // 用剪贴板内容覆盖当前选中区。
-    // document.execCommand("Print"); // 打开打印对话框以便用户可以打印当前页。
-    // document.execCommand("Redo"); // 重做。
-    // document.execCommand("Refresh"); // 刷新当前文档。
-    // document.execCommand("RemoveFormat"); // 从当前选中区中删除格式化标签。
-    // document.execCommand("SaveAs"); // 将当前 Web 页面保存为文件。
-    // document.execCommand("SelectAll"); // 选中整个文档。
-    // document.execCommand("Stop"); // 停止。
-    // document.execCommand("UnBookmark"); // 从当前选中区中删除全部书签。
-    // document.execCommand("Underline"); // 切换当前选中区的下划线显示与否。
-    // document.execCommand("Undo"); // 撤消。
-    // document.execCommand("Unlink"); // 从当前选中区中删除全部超级链接。
-    // document.execCommand("Unselect"); // 清除当前选中区的选中状态。
   </script>
 </body>
 

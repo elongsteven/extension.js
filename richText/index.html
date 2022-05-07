@@ -166,6 +166,7 @@
         &lt;/script&gt;`)
         this.doc.write("<div id='space' style='position:fixed;top:0;left:0;right:0;bottom:0;' onclick='hide($(this))'></div>");
         this.doc.write(js);
+        // 对head添加方法
         this.doc.getElementsByTagName("head")[0].innerHTML += HTMLDecode(`&lt;style&gt;
           p {
             word-wrap: break-word;

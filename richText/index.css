@@ -94,11 +94,3 @@
   border-radius: 8px;
   background: #f4f4f4;
 }
-
-
-
-/* 一些公用样式 */
-
-.e-flex {
-  display: flex;
-}

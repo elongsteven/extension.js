@@ -10,6 +10,10 @@
   <script src="./library/vue-2.6.14.js"></script>
   <link rel="stylesheet" href="./index.css">
   <style>
+    [v-cloak] {
+      display: none;
+    }
+
     .barArea {
       margin: 30px;
       display: flex;
@@ -37,49 +41,258 @@
 
 <body>
   <div id="app" style="margin-bottom: 1000px;">
-    <div v-for="(item,index) in dataArr" :key="item.id">
+    <div v-for="(item,index) in dataArr" :key="item.id" v-cloak>
       <div class="barArea" v-if="item.type === 'text'">
+        <div class="es-richText">
+          <div class="toolbar">
+            <div class="toHtml_btn" onclick="esEditor.toHtml()" style="font-size:12px;">&lt;/&gt;</div>
+            <div class="toView_btn" onclick="esEditor.toView()" style="font-size:12px;display:none;">TXT</div>
+            <div class="htmlHide" onclick="esEditor.undo()">撤销</div>
+            <div class="htmlHide" onclick="esEditor.redo()">恢复</div>
+            <div class="htmlHide" onclick="esEditor.insertEMSP()">EMSP</div>
+            <div class="htmlHide" onclick="esEditor.indent()">缩进</div>
+            <div class="htmlHide" onclick="esEditor.bold()">加粗</div>
+            <div class="htmlHide" onclick="esEditor.italic()">倾斜</div>
+            <div class="htmlHide" onclick="esEditor.underline()">下划线</div>
+            <div class="htmlHide" onclick="esEditor.strikeThrough()">删除线</div>
+            <div class="htmlHide" onclick="esEditor.h1()">H1</div>
+            <div class="htmlHide" onclick="esEditor.h2()">H2</div>
+            <div class="htmlHide" onclick="esEditor.h3()">H3</div>
+            <div class="htmlHide" onclick="esEditor.foreColor()">字体颜色</div>
+            <div class="htmlHide" onclick="esEditor.hiliteColor()">字体背景</div>
+            <div class="htmlHide" onclick="esEditor.insertOrderedList()">有序</div>
+            <div class="htmlHide" onclick="esEditor.insertUnorderedList()">无序</div>
+            <div class="htmlHide" onclick="esEditor.save()">提交</div>
+            <div class="htmlHide" onclick="esEditor.format()">format</div>
+            <div class="htmlHide" onclick="esEditor.lineHeight()">行高</div>
+          </div>
+          <div style="width:100%; height:300px; box-sizing: border-box;">
+            <iframe class="HtmlEdit" :src="'?ids='+index" style="width:100%;height:100%;"></iframe>
+            <textarea class="HtmlView" style="width:100%;height:100%; display:none;"></textarea>
+          </div>
+        </div>
         text<div @click="delData(index)">-删除</div>
       </div>
       <div class="barArea" v-else-if="item.type === 'image'">
-        <input type="file" accept="image/gif,image/jpeg,image/png" @change="changeFn(item, index)" />
+        <input type="file" accept="image/gif,image/jpeg,image/png" @change="changeFn(item, index, $event)" />
         image<div @click="delData(index)">-删除</div>
       </div>
       <div class="barArea" v-else-if="item.type === 'audio'">
-        <input type="file" accept="audio/*" @change="changeFn(item, index)" />
+        <input type="file" accept="audio/*" @change="changeFn(item, index, $event)" />
         audio<div @click="delData(index)">-删除</div>
       </div>
       <div class="barArea" v-else-if="item.type === 'video'">
-        <input type="file" accept="video/*" @change="changeFn(item, index)" />
+        <input type="file" accept="video/*" @change="changeFn(item, index, $event)" />
         video<div @click="delData(index)">-删除</div>
       </div>
     </div>
+    {{dataArr}}
     <div class="barArea">
       <div class="fnBtn" @click="addData('text')">+文字</div>
       <div class="fnBtn" @click="addData('image')">+图片</div>
       <div class="fnBtn" @click="addData('audio')">+音频</div>
       <div class="fnBtn" @click="addData('video')">+视频</div>
     </div>
-    {{dataArr}}
   </div>
 
   <script>
-    var vm = new Vue({
+    window.esEditor = {
+      isFormat: false,
+      editor: "", //获取iframe Window 对象
+      doc: "", //获取iframe documen 对象
+      // editor: document.getElementsByClassName("HtmlEdit")[0].contentWindow, //获取iframe Window 对象
+      // doc: document.getElementsByClassName("HtmlEdit")[0].contentDocument, //获取iframe documen 对象
+      // box: document.getElementById('box'),
+      iframeJqDOC: '',
+      dataSetting: function (id) {
+        setTimeout(function () {
+          // console.log($(".HtmlEdit"))
+          this.editor = document.getElementsByClassName("HtmlEdit")[id].contentWindow
+          this.doc = document.getElementsByClassName("HtmlEdit")[id].contentDocument
+          this.EditorInitSetting(id);
+        }.bind(this))
+
+        // $(".HtmlEdit")[id].ready(function () {
+        //   esEditor.EditorInitSetting();
+        // })
+        // setTimeout(function () {
+        //   this.EditorInitSetting();
+        // }.bind(this))
+      },
+      EditorInitSetting: function (id) {
+        this.editor.document.designMode = 'On'; //打开设计模式
+        this.editor.document.contentEditable = true; // 设置元素为可编辑
+        var scr = HTMLDecode("&lt;script src='../Library/jquery/jquery-3.6.0.js'&gt;&lt;/script&gt;");
+        this.doc.write(scr);
+        var js = HTMLDecode(`&lt;script&gt;
+          var textId = ` + id + `;
+          function hide(ele) {
+            window.parent.esEditor.autoFormat($(document));
+          }
+          // 点击事件
+          $(document).on("click", function () {
+            window.parent.esEditor.getFocus($(document), textId);
+          })
+        &lt;/script&gt;`)
+        this.doc.write("<div class='spaceMask' style='position:fixed;top:0;left:0;right:0;bottom:0;' onclick='hide($(this))'></div>");
+        this.doc.write(js);
+        this.doc.getElementsByTagName("head")[0].innerHTML += HTMLDecode(`&lt;style&gt;
+          p {
+            word-wrap: break-word;
+            word-break: break-all;
+          }
+        &lt;/style&gt;`)
+      },
+      getFocus: function (ele, textId) {
+        this.iframeJqDOC = ele;
+        this.editor = document.getElementsByClassName("HtmlEdit")[textId].contentWindow
+        this.doc = document.getElementsByClassName("HtmlEdit")[textId].contentDocument
+      },
+      undo: function () {
+        this.editor.document.execCommand('undo', false, null); // 撤销
+      },
+      redo: function () {
+        this.editor.document.execCommand('redo', false, null); // 恢复
+      },
+      indent: function () {
+        this.editor.document.execCommand("Indent"); // 增加选中文本的缩进。
+      },
+      // 加粗
+      bold: function () {
+        this.editor.document.execCommand('bold', false, null)
+      },
+      // 斜体
+      italic: function () {
+        this.editor.document.execCommand('italic', false, null)
+      },
+      // 下划线
+      underline: function () {
+        this.editor.document.execCommand('underline', false, null)
+      },
+      // 删除线
+      strikeThrough: function () {
+        this.editor.document.execCommand('strikeThrough', false, null)
+      },
+      // H1
+      h1: function () {
+        this.editor.document.execCommand('fontSize', false, 7)
+      },
+      // H2
+      h2: function () {
+        this.editor.document.execCommand('fontSize', false, 6)
+      },
+      // H3
+      h3: function () {
+        this.editor.document.execCommand('fontSize', false, 5)
+      },
+      // 字体颜色
+      foreColor: function () {
+        this.editor.document.execCommand('foreColor', false, 'red')
+      },
+      // 字体背景
+      hiliteColor: function () {
+        this.editor.document.execCommand('hiliteColor', false, 'yellow')
+      },
+      // 有序列表
+      insertOrderedList: function () {
+        this.editor.document.execCommand('insertOrderedList', false, null)
+      },
+      // 无序列表
+      insertUnorderedList: function () {
+        this.editor.document.execCommand('insertUnorderedList', false, null)
+      },
+      // 格式序列化
+      format: function () {
+        this.editor.document.execCommand('formatblock', false, 'p');
+      },
+      lineHeight: function () {
+        this.iframeJqDOC.find("p").css("lineHeight", 2)
+      },
+      insertEMSP: function () {
+        this.editor.document.execCommand('insertText', false, HTMLDecode('&emsp;&emsp;'));
+      },
+      eventHandler: function (e) {
+
+      },
+      // 格式序列化（首次点击文本框触发）
+      autoFormat: function (ele) {
+        // ele.find("body").find("script,#space").remove();
+        ele.find("body").find(".spaceMask").remove();
+        this.iframeJqDOC = ele;
+        /* 节点改变监听 */
+        // ele.bind("DOMNodeInserted", function (e) {
+        //   setTimeout(function () {
+        //     // ele.find("p").css({
+        //     //   "text-indent": "2em"
+        //     // })
+        //   })
+        // })
+        setTimeout(function () {
+          this.editor.document.execCommand('formatblock', false, 'p');
+        }.bind(this))
+      },
+      // 提交（过滤多余的标签）
+      save: function () {
+        // 过滤
+        var temp = document.createElement("div");
+        $(temp).html(this.doc.body.innerHTML)
+        $(temp).find("script").remove();
+        var output = temp.innerHTML
+        // 导出
+        console.log(output)
+        // this.box.innerHTML = output
+      },
+      toHtml: function () {
+        // 切换为源码视图
+        $(".HtmlEdit").hide();
+        $(".HtmlView").fadeIn(300);
+        $(".HtmlView").val(this.doc.body.innerHTML); // 编辑继承
+        $(".toHtml_btn").hide();
+        $(".toView_btn").fadeIn(300);
+        $(".htmlHide").css({
+          "opacity": 0,
+          "cursor": "default",
+          "pointer-events": "none"
+        });
+      },
+      toView: function () {
+        // 切换为效果视图
+        $(".HtmlView").hide();
+        $(".HtmlEdit").fadeIn(300);
+        this.doc.body.innerHTML = $(".HtmlView").val()
+        $(".toView_btn").hide();
+        $(".toHtml_btn").fadeIn(300);
+        $(".htmlHide").css({
+          "opacity": 1,
+          "cursor": "pointer",
+          "pointer-events": "auto"
+        });
+      }
+    }
+
+    var vueApp = new Vue({
       el: "#app",
       data: {
         id: 0,
+        textId: 0,
         dataArr: [],
       },
-      mounted() {
-
+      mounted() { // 调试
+        this.addData("text")
       },
       methods: {
         // 增
         addData: function (type) {
           this.dataArr.push({
             "id": this.id,
-            "type": type
+            "type": type,
           });
+          if (type === "text") {
+            // console.log(window.esEditor)
+            window.esEditor.dataSetting(this.textId);
+            // window.esEditor.EditorInitSetting(this.textId);
+            this.textId++;
+          }
           this.id++;
         },
         // 删
@@ -87,11 +300,66 @@
           this.dataArr.splice(index, 1);
         },
         // 改
-        changeFn: function (data, index) {
-          if (data.type === 'image') {}
+        changeFn: function (data, index, event) {
+          // this.dataArr[index].url = 
         }
       }
     })
+
+    /* VUE图片上传 */
+    // if (this.dataArr[index].type !== data.type) return false
+    // var file = event.target.files[0]; //获取图片资源
+    // var fileTypes = ["bmp", "jpg", "png", "jpeg"];
+    // var bTypeMatch = false
+    // for (var i = 0; i < fileTypes.length; i++) {
+    //   var start = file.name.lastIndexOf(".");
+    //   var fileType = file.name.substring(start + 1);
+    //   if (fileType.toLowerCase() == fileTypes[i]) {
+    //     bTypeMatch = true;
+    //     break;
+    //   }
+    // }
+    // if (bTypeMatch) {
+    //   if (file.size <= 1024 * 1024 * 10) { // 10MB
+    //     var reader = new FileReader();
+    //     reader.readAsDataURL(file); // 读取文件
+    //     // 渲染文件
+    //     reader.onload = function (arg) {
+    //       $(".imageShow").show()
+    //       $("#uploadImageShow").attr("src", arg.target.result)
+    //       btnUploadText = '重新上传'
+    //       $("#uploadButton").text(btnUploadText)
+    //     }
+    //   } else {
+    //     alert('仅支持不超过10M的图片');
+    //     emptyImageUpload("#imagePic")
+    //     $("#uploadImageShow").attr("src", "")
+    //     $(".imageShow").hide()
+    //     btnUploadText = '上传'
+    //     $("#uploadButton").text(btnUploadText)
+    //     return false;
+    //   }
+    // } else {
+    //   alert('仅限bmp，jpg，png，jpeg图片格式');
+    //   emptyImageUpload("#imagePic")
+    //   $("#uploadImageShow").attr("src", "")
+    //   $(".imageShow").hide()
+    //   btnUploadText = '上传'
+    //   $("#uploadButton").text(btnUploadText)
+    //   return false;
+    // }
+
+    function getObjectURL(file) {
+      var url = null;
+      if (window.createObjectURL != undefined) { // basic
+        url = window.createObjectURL(file);
+      } else if (window.URL != undefined) { // mozilla(firefox)
+        url = window.URL.createObjectURL(file);
+      } else if (window.webkitURL != undefined) { // webkit or chrome
+        url = window.webkitURL.createObjectURL(file);
+      }
+      return url;
+    }
 
     function HTMLEncode(html) {
       var temp = document.createElement("div");
@@ -110,37 +378,10 @@
     }
   </script>
 
-  <div style="display: flex;">
+  <!-- <div style="display: flex;">
     <div id="box" class="trueView"></div>
-    <div class="es-richText">
-      <div class="toolbar" id="butGroup">
-        <div class="toHtml_btn" onclick="esEditor.toHtml()" style="font-size:12px;">&lt;/&gt;</div>
-        <div class="toView_btn" onclick="esEditor.toView()" style="font-size:12px;display:none;">TXT</div>
-        <div class="htmlHide" onclick="esEditor.undo()">撤销</div>
-        <div class="htmlHide" onclick="esEditor.redo()">恢复</div>
-        <div class="htmlHide" onclick="esEditor.insertEMSP()">EMSP</div>
-        <div class="htmlHide" onclick="esEditor.indent()">缩进</div>
-        <div class="htmlHide" onclick="esEditor.bold()">加粗</div>
-        <div class="htmlHide" onclick="esEditor.italic()">倾斜</div>
-        <div class="htmlHide" onclick="esEditor.underline()">下划线</div>
-        <div class="htmlHide" onclick="esEditor.strikeThrough()">删除线</div>
-        <div class="htmlHide" onclick="esEditor.h1()">H1</div>
-        <div class="htmlHide" onclick="esEditor.h2()">H2</div>
-        <div class="htmlHide" onclick="esEditor.h3()">H3</div>
-        <div class="htmlHide" onclick="esEditor.foreColor()">字体颜色</div>
-        <div class="htmlHide" onclick="esEditor.hiliteColor()">字体背景</div>
-        <div class="htmlHide" onclick="esEditor.insertOrderedList()">有序</div>
-        <div class="htmlHide" onclick="esEditor.insertUnorderedList()">无序</div>
-        <div class="htmlHide" onclick="esEditor.save()">提交</div>
-        <div class="htmlHide" onclick="esEditor.format()">format</div>
-        <div class="htmlHide" onclick="esEditor.lineHeight()">行高</div>
-      </div>
-      <div style="width:100%; height:586px; box-sizing: border-box;">
-        <iframe id="HtmlEdit" style="width:100%;height:100%;"></iframe>
-        <textarea id="HtmlView" style="width:100%;height:100%; display:none;"></textarea>
-      </div>
-    </div>
-  </div>
+
+  </div> -->
 </body>
 
 </html>
